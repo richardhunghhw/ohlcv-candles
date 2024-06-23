@@ -20,8 +20,8 @@ public class CandleDataAggregator {
     private final Queue<BookData> data; // Book data to be aggregated
 
     private boolean discardFirstCandle = true; // Discard the first candle after the socket opens
-    private long period = 60000; // 1 minute in milliseconds
     private long prevCandleTimestamp = 0; // Tracks the timestamp of the latest published candle
+    private final long period = 60000; // 1 minute in milliseconds
 
     public CandleDataAggregator() {
         this.listeners = new ArrayList<>();
@@ -49,7 +49,7 @@ public class CandleDataAggregator {
     /**
      * Aggregates book data and notifies listeners with aggregated candle data.
      */
-    public void aggregateAndNotify() {        
+    public void aggregateAndNotify() {
         if (discardFirstCandle) {
             // Discard the first candle after the socket opens
             discardFirstCandle = false;
@@ -80,6 +80,7 @@ public class CandleDataAggregator {
 
             // This book data is for a future candle, stop
             if (timestamp >= lastCandle) {
+                System.out.println("CandleDataAggregator.aggregateAndNotify: Book data is for a future candle. timestamp: " + timestamp + ", lastCandle: " + lastCandle);
                 return;
             }
             // This book data is not for a future candle
@@ -87,7 +88,7 @@ public class CandleDataAggregator {
             
             if (timestamp < start) {
                 // The data is for a previous (already published) candle, skip
-                System.err.println("CandleDataAggregator.aggregateAndNotify: Skipped book data: " + bookData.toString());
+                // System.err.println("CandleDataAggregator.aggregateAndNotify: Skipped book data: " + bookData.toString());
             } else {
                 if (timestamp >= end) {
                     // The data is for the next candle, notify previous candle and start a new candle

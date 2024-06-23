@@ -4,8 +4,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Scheduler for the aggregator.
+ * While the scheduler triggers the aggregator on a fixed rate, the aggregator will only publish 
+ * candles when it has enough data (full range of data for the candle period)
+ * So this scheduler does not have to run at the same rate as the candle period.
+ */
 public class AggregatorScheduler {
-
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final CandleDataAggregator aggregator;
 
@@ -17,7 +22,7 @@ public class AggregatorScheduler {
      * Starts the scheduler to run the aggregator every minute.
      */
     public void start() {
-        scheduler.scheduleAtFixedRate(aggregator::aggregateAndNotify, 0, 1, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(aggregator::aggregateAndNotify, 0, 60, TimeUnit.SECONDS);
     }
 
     /** 

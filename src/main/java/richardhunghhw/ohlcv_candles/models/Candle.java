@@ -18,7 +18,7 @@ public class Candle {
     }
 
     public Candle(long timestamp){
-        Candle(timestamp, 0.0, 0.0, 0.0, 0.0, 0);
+        this(timestamp, 0.0, 0.0, 0.0, 0.0, 0);
     }
 
     /**
