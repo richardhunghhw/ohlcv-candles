@@ -48,4 +48,24 @@ public class BookData {
                 ", lowestAsk=" + lowestAsk +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BookData bookData = (BookData) o;
+
+        if (!timestamp.equals(bookData.timestamp)) return false;
+        if (!highestBid.equals(bookData.highestBid)) return false;
+        return lowestAsk.equals(bookData.lowestAsk);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = timestamp.hashCode();
+        result = 31 * result + highestBid.hashCode();
+        result = 31 * result + lowestAsk.hashCode();
+        return result;
+    }
 }

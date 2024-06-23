@@ -115,7 +115,7 @@ public class Kraken implements Exchange {
      */
     @OnError
     public void onError(Session session, Throwable throwable) {
-        // TODO Exit the program if there is an error
+        // TODO Perhaps exit the program if there is an error?
         throwable.printStackTrace();
     }
 
