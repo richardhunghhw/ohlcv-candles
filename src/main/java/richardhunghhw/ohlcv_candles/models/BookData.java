@@ -1,5 +1,6 @@
 package richardhunghhw.ohlcv_candles.models;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 public class BookData {
@@ -43,7 +44,7 @@ public class BookData {
     @Override
     public String toString() {
         return "BookData{" +
-                "timestamp=" + timestamp +
+                "timestamp=" + Timestamp.valueOf(timestamp).getTime() +
                 ", highestBid=" + highestBid +
                 ", lowestAsk=" + lowestAsk +
                 '}';

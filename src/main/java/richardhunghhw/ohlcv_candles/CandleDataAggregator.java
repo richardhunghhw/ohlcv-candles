@@ -19,7 +19,6 @@ public class CandleDataAggregator {
     private final List<CandleListenerService> listeners; // List of listeners to notify
     private final Queue<BookData> data; // Book data to be aggregated
 
-    private boolean discardFirstCandle = true; // Discard the first candle after the socket opens
     private long prevCandleTimestamp = 0; // Tracks the timestamp of the latest published candle
     private final long period = 60000; // 1 minute in milliseconds
 
@@ -34,8 +33,7 @@ public class CandleDataAggregator {
      */
     public void addBookData(BookData bookData) {
         // System.out.println("CandleDataAggregator.addBookData: " + bookData.toString());
-        // Add book data to map
-        data.add(bookData);
+        this.data.add(bookData);
     }
 
     public void addListener(CandleListenerService listener) {
@@ -50,65 +48,75 @@ public class CandleDataAggregator {
      * Aggregates book data and notifies listeners with aggregated candle data.
      */
     public void aggregateAndNotify() {
-        if (discardFirstCandle) {
-            // Discard the first candle after the socket opens
-            discardFirstCandle = false;
-            data.clear();
+        if (this.prevCandleTimestamp == 0) {
+            this.data.clear();
 
             // Set prevCandleTimestamp to the current time rounded down to the nearest period
-            prevCandleTimestamp = System.currentTimeMillis() / period * period;
+            // The first candle will be prevCandleTimestamp + period, the next one
+            this.prevCandleTimestamp = System.currentTimeMillis() / period * period;
 
-            System.out.println("CandleDataAggregator.aggregateAndNotify: Discarded first candle, prevCandleTimestamp: " + prevCandleTimestamp);
+            // System.out.println("CandleDataAggregator.aggregateAndNotify: Discarded first candle, prevCandleTimestamp: " + this.prevCandleTimestamp);
             return;
         }
 
         // The next candle starts at the end of the previous candle
-        long start = prevCandleTimestamp + period;
+        long start = this.prevCandleTimestamp + period;
         long end = start + period;
 
         // The last candle that can be pulished is before the current time rounded down to the nearest period
         long lastCandle = System.currentTimeMillis() / period * period;
 
-        System.out.println("CandleDataAggregator.aggregateAndNotify: Aggregating candles from " + start + ":" + end + " to " + lastCandle + " with " + data.size() + " book data");
+        // System.out.println("CandleDataAggregator.aggregateAndNotify: Aggregating candles till " + lastCandle + " with " + this.data.size() + " book data");
+        aggregateCandles(start, end, lastCandle);
+    }
 
+    private void aggregateCandles(long start, long end, long lastCandle) {
         // Aggregate book data, creates candles from the preivousCandleTimestamp to the lastCandle
+        // System.out.println("CandleDataAggregator.aggregateCandles: Aggregating candles from " + start + " to " + end);
         Candle candle = new Candle(start);
-        BookData bookData = data.peek();
+        BookData bookData = this.data.peek();
         while (!data.isEmpty()) {
             // covert localdatetime to epoch timestamp
             long timestamp = Timestamp.valueOf(bookData.getTimestamp()).getTime();
 
-            // This book data is for a future candle, stop
+            // This book data is for a future candle not to be computed, stop
             if (timestamp >= lastCandle) {
-                System.out.println("CandleDataAggregator.aggregateAndNotify: Book data is for a future candle. timestamp: " + timestamp + ", lastCandle: " + lastCandle);
-                return;
+                // System.out.println("CandleDataAggregator.aggregateCandles: Book data is for a future candle. timestamp: " + timestamp + ", lastCandle: " + lastCandle);
+                break;
             }
             // This book data is not for a future candle
-            data.poll(); 
+            this.data.poll(); 
             
             if (timestamp < start) {
                 // The data is for a previous (already published) candle, skip
-                // System.err.println("CandleDataAggregator.aggregateAndNotify: Skipped book data: " + bookData.toString());
+                // System.out.println("CandleDataAggregator.aggregateCandles: Skipped book data: " + bookData.toString() + ", start: " + start);
             } else {
+                // System.out.println("CandleDataAggregator.aggregateCandles: Processing book data: " + bookData.toString());
                 if (timestamp >= end) {
                     // The data is for the next candle, notify previous candle and start a new candle
                     notifyListeners(candle);
-                    candle = new Candle(start);
                     start = end;
                     end = start + period;
+                    candle = new Candle(start);
                 } else {
                     // Add the price to the candle
                     candle.addPrice(bookData.getMidPrice());
                 }
             }
-            bookData = data.peek();
+            bookData = this.data.peek();
         }
 
         // Notify the last candle
         notifyListeners(candle);
+        this.prevCandleTimestamp = lastCandle - period;
     }
 
     private void notifyListeners(Candle candle) {
+        if (candle.getTicks() == 0) {
+            // System.err.println("CandleDataAggregator.notifyListeners: Candle has no ticks, not notifying listeners");
+            return;
+        }
+        // System.out.println("CandleDataAggregator.notifyListeners: Notifying listeners with candle: " + candle.toString());
         for (CandleListenerService listener : listeners) {
             listener.onCandle(candle);
         }
