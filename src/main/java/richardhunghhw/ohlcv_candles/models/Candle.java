@@ -21,6 +21,30 @@ public class Candle {
         this(timestamp, 0.0, 0.0, 0.0, 0.0, 0);
     }
 
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public double getOpen() {
+        return open;
+    }
+
+    public double getHigh() {
+        return high;
+    }
+
+    public double getLow() {
+        return low;
+    }
+
+    public double getClose() {
+        return close;
+    }
+
+    public int getTicks() {
+        return ticks;
+    }
+
     /**
      * Adds a price to the candle.
      * Updates open, high, low, close, and ticks based on the new price.
