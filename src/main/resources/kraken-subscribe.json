@@ -1,0 +1,10 @@
+{
+    "method": "subscribe",
+    "params": {
+        "channel": "book",
+        "symbol": [
+            "ALGO/USD",
+            "MATIC/USD"
+        ]
+    }
+}

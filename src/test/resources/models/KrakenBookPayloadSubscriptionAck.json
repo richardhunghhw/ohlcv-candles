@@ -1,0 +1,12 @@
+{
+    "method": "subscribe",
+    "result": {
+        "channel": "book",
+        "depth": 10,
+        "snapshot": true,
+        "symbol": "BTC/USD"
+    },
+    "success": true,
+    "time_in": "2024-06-21T16:09:20.641770Z",
+    "time_out": "2024-06-21T16:09:20.641821Z"
+}

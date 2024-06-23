@@ -1,0 +1,11 @@
+# system
+.DS_Store
+.vscode
+!**/.gitkeep
+
+# env files
+.env
+.env.local
+
+# build
+target/
