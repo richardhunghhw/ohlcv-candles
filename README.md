@@ -20,13 +20,15 @@ Each m1 candle consists of the following:
 - Close; mid price at the end of the minute
 - Ticks; total number of ticks observed during the minute interval
 
-Mid price is be computed by “(highest bid + lowest ask) / 2”.
+Mid price is be computed by `(highest bid + lowest ask) / 2`.
 
 Upon successful subscription to Kraken, messages arrives as follows: 
 1. `KrakenBookPayloadStatus.json`, this message is ignored and not parsed
 2. `KrakenBookPayloadSubscriptionAck.json`, this message is ignored and not parsed
 3. `KrakenBookPayloadBookSnapshot.json`, this message is used to build the inital state 
 4. `KrakenBookPayloadBookUpdate.json`, this message will then continuously update each corresponding candle. Notice this message only provides price for one side bid/ask. Starting from the inital state, this message will provide a new mid price for each candle using the new price bid/ask in combination with the missing side ask/bid from the previous tick. 
+
+See more in `Kraken.java`
 
 ## Setup
 

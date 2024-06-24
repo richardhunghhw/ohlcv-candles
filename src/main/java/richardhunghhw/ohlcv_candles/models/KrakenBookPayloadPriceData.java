@@ -1,7 +1,5 @@
 package richardhunghhw.ohlcv_candles.models;
 
-import java.util.List;
-
 public class KrakenBookPayloadPriceData {
     private double price;
     private double qty;
