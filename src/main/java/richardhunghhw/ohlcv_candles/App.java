@@ -1,6 +1,7 @@
 package richardhunghhw.ohlcv_candles;
 
 import richardhunghhw.ohlcv_candles.exchanges.Kraken;
+import richardhunghhw.ohlcv_candles.models.TimeProvider;
 import richardhunghhw.ohlcv_candles.services.InMemoryCandleStore;
 import richardhunghhw.ohlcv_candles.services.KafkaCandleDispatcher;
 
@@ -19,7 +20,8 @@ public class App
         KafkaCandleDispatcher kafkaDispatcher = new KafkaCandleDispatcher();
 
         // Create a new PairCandleAggregator and attach the listeners, the aggregator will notify the listeners when a new candle is ready
-        CandleDataAggregator aggregator = new CandleDataAggregator();
+        TimeProvider timeProvider = new TimeProvider();
+        CandleDataAggregator aggregator = new CandleDataAggregator(timeProvider);
         aggregator.addListener(memoryStore);
         aggregator.addListener(kafkaDispatcher);
 

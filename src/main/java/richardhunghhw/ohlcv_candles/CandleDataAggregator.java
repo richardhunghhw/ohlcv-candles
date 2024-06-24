@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import richardhunghhw.ohlcv_candles.models.BookData;
 import richardhunghhw.ohlcv_candles.models.Candle;
+import richardhunghhw.ohlcv_candles.models.TimeProvider;
 import richardhunghhw.ohlcv_candles.services.CandleListenerService;
 
 /**
@@ -16,15 +17,18 @@ import richardhunghhw.ohlcv_candles.services.CandleListenerService;
  * Specifically, every minute.
  */
 public class CandleDataAggregator {
+    public static long period = 60000; // 1 minute in milliseconds
+
     private final List<CandleListenerService> listeners; // List of listeners to notify
     private final Queue<BookData> data; // Book data to be aggregated
+    private final TimeProvider timeProvider; // Provides the current time
 
     private long prevCandleTimestamp = 0; // Tracks the timestamp of the latest published candle
-    private final long period = 60000; // 1 minute in milliseconds
 
-    public CandleDataAggregator() {
+    public CandleDataAggregator(TimeProvider timeProvider) {
         this.listeners = new ArrayList<>();
         this.data = new ConcurrentLinkedQueue<>();
+        this.timeProvider = timeProvider;
     }
     
     /**
@@ -53,7 +57,7 @@ public class CandleDataAggregator {
 
             // Set prevCandleTimestamp to the current time rounded down to the nearest period
             // The first candle will be prevCandleTimestamp + period, the next one
-            this.prevCandleTimestamp = System.currentTimeMillis() / period * period;
+            this.prevCandleTimestamp = this.timeProvider.currentTimeMillis() / period * period;
 
             // System.out.println("CandleDataAggregator.aggregateAndNotify: Discarded first candle, prevCandleTimestamp: " + this.prevCandleTimestamp);
             return;
@@ -64,7 +68,7 @@ public class CandleDataAggregator {
         long end = start + period;
 
         // The last candle that can be pulished is before the current time rounded down to the nearest period
-        long lastCandle = System.currentTimeMillis() / period * period;
+        long lastCandle = this.timeProvider.currentTimeMillis() / period * period;
 
         // System.out.println("CandleDataAggregator.aggregateAndNotify: Aggregating candles till " + lastCandle + " with " + this.data.size() + " book data");
         aggregateCandles(start, end, lastCandle);
