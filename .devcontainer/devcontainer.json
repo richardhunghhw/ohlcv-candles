@@ -6,6 +6,9 @@
     // "image": "mcr.microsoft.com/devcontainers/typescript-node:0-20",
     "build": {
         "dockerfile": "Dockerfile",
+        "args": {
+            "network": "host"
+        }
     },
     // Features to add to the dev container. More info: https://containers.dev/features.
     "features": {
