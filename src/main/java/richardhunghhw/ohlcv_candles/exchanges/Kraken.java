@@ -33,6 +33,7 @@ import richardhunghhw.ohlcv_candles.models.KrakenBookPayloadData;
 @ClientEndpoint
 public class Kraken implements Exchange {
     private final String uri = "wss://ws.kraken.com/v2";
+    private final String currencyPair = "BTC/USD";
 
     private final CandleDataAggregator aggregator;
     private final ObjectMapper mapper;
@@ -51,6 +52,7 @@ public class Kraken implements Exchange {
      * @throws IOException 
      * @throws DeploymentException 
      */
+    @Override
     public void connect() throws DeploymentException, IOException, URISyntaxException {
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         container.connectToServer(this, new URI(uri));
@@ -64,7 +66,7 @@ public class Kraken implements Exchange {
     public void onOpen(Session session) {
         System.out.println("WebSocket opened for Kraken, subscribing to book data");
         this.session = session;
-        sendMessage("{\"method\": \"subscribe\", \"params\": { \"channel\": \"book\", \"symbol\": [\"BTC/USD\"]}}");
+        sendMessage("{\"method\": \"subscribe\", \"params\": { \"channel\": \"book\", \"symbol\": [\"" + currencyPair + "\"]}}");
     }
 
     /**
